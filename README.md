@@ -1,19 +1,66 @@
 # Quantitative-trading-in-A  ----  A股市场恐慌情绪量化因子研究报告
-Research on market panic indicators in the quantitative process, and research strategies on market panic indicators in the growth stock selection process.
-The study primarily focuses on the analysis of panic sentiment indicators, implementation methods on the JoinQuant platform, quantitative strategy applications, and complete code implementation. The report details how panic sentiment factors achieved an annualized return of 17.83% and a win rate of 58.19% in backtesting, while reducing the maximum drawdown from 48.44% to 13.70%.
-A股市场独特的散户主导结构为恐慌情绪因子提供了显著的量化投资机会，相关策略在回测中实现了17.83%年化收益率和58.19%胜率，同时将最大回撤从48.44%降至13.70%。 Sina本研究深入分析了恐慌情绪指标体系、聚宽平台实现方法、量化策略应用以及具体代码实现，为A股量化投资者提供了系统性的恐慌情绪因子应用框架。
-核心恐慌情绪指标体系
-中国版VIX指标构建
-**隐含波动率指数(iVIX)**是中国市场最重要的恐慌情绪指标，基于上证50ETF期权采用CBOE方法论计算。 ScienceDirect该指标历史范围为8.31点（2017年5月低点）至33.06点（2018年2月高点），平均值13.785点。 Ceicdata尽管官方报告于2018年2月22日暂停，但量化投资者可通过Wind金融终端或手动计算获得数据。 ScienceDirect
-**中国波动率指数(CNVIX)**采用无模型波动率指数方法，基于ETF期权扩展CBOE方法论。研究表明该指标显示出显著的负向非对称杠杆效应和正向平均波动率风险溢价，为择时策略提供了可靠的信号来源。 ScienceDirect
-量化阈值设定：iVIX > 25表示市场恐慌加剧（历史90分位数），< 15表示市场过度乐观，>30时通常对应极端恐慌的抄底机会。
-异常换手率与成交量指标
-异常换手率计算公式为：ATR(t) = TURN(t) - Average_TURN，其中正常换手率通常采用20-60日均值。统计显著性检验使用t统计量：t_ATR = ATR / σ_TURN，当异常换手率超过2个标准差时表明投机交易或恐慌情绪。
-异常成交量检测采用两种方法：成交量比率法（Volume_Ratio = Current_Volume / ADTV，比率>2.0表示异常活跃）和Z分数法（Z_Volume = (Current_Volume - Mean_Volume) / StdDev_Volume，Z分数>2表示统计显著的异常成交量）。 Investopedia
-涨跌停板数量分析
+
+Research on market panic indicators in the quantitative process, and research strategies on market panic indicators in the growth stock selection process.  
+The study primarily focuses on the analysis of panic sentiment indicators, implementation methods on the JoinQuant platform, quantitative strategy applications, and complete code implementation. The report details how panic sentiment factors achieved an annualized return of 17.83% and a win rate of 58.19% in backtesting, while reducing the maximum drawdown from 48.44% to 13.70%.  
+A股市场独特的散户主导结构为恐慌情绪因子提供了显著的量化投资机会，相关策略在回测中实现了17.83%年化收益率和58.19%胜率，同时将最大回撤从48.44%降至13.70%。Sina本研究深入分析了恐慌情绪指标体系、聚宽平台实现方法、量化策略应用以及具体代码实现，为A股量化投资者提供了系统性的恐慌情绪因子应用框架。
+
+---
+
+## 核心恐慌情绪指标体系
+
+### 中国版VIX指标构建
+
+**隐含波动率指数(iVIX)** 是中国市场最重要的恐慌情绪指标，基于上证50ETF期权采用CBOE方法论计算。  
+该指标历史范围为8.31点（2017年5月低点）至33.06点（2018年2月高点），平均值13.785点。  
+尽管官方报告于2018年2月22日暂停，但量化投资者可通过Wind金融终端或手动计算获得数据。
+
+**中国波动率指数(CNVIX)** 采用无模型波动率指数方法，基于ETF期权扩展CBOE方法论。研究表明该指标显示出显著的负向非对称杠杆效应和正向平均波动率风险溢价，为择时策略提供了可靠的信号来源。
+
+量化阈值设定：  
+- iVIX > 25 表示市场恐慌加剧（历史90分位数）  
+- < 15 表示市场过度乐观  
+- > 30 时通常对应极端恐慌的抄底机会
+
+---
+
+## 异常换手率与成交量指标
+
+异常换手率计算公式为：
+
+```python
+ATR = TURN - Average_TURN
+```
+
+统计显著性检验使用 t 统计量：
+
+```python
+t_ATR = ATR / σ_TURN
+```
+
+成交量比率法：
+
+```python
+Volume_Ratio = Current_Volume / ADTV
+```
+
+Z分数法：
+
+```python
+Z_Volume = (Current_Volume - Mean_Volume) / StdDev_Volume
+```
+
+---
+
+## 涨跌停板数量分析
+
 A股特有的涨跌停机制为恐慌情绪提供了直观指标。普通股票日涨跌幅限制为±10%，ST股票为±5%，** TradingView科创板/创业板为±20%。 LinkedIn跌停比率(LDR)**计算公式为：跌停股票数量/可交易股票总数，历史数据显示LDR > 15%表明严重市场压力，如2015年股灾期间单日466只股票触发跌停。 Reuters
-聚宽平台实现方法
-核心API与数据获取
+
+---
+
+## 聚宽平台实现方法
+
+### 核心API与数据获取
+
 聚宽平台提供了完整的数据API体系支持恐慌情绪因子计算。** GitHub +3get_price()函数**是主要的历史数据获取工具， Investopedia支持'volume'、'money'、'high_limit'、'low_limit'等关键字段。get_current_data()函数提供实时数据访问，返回涨跌停价格和停牌状态等关键信息。
 python# 基础数据获取示例
 def get_market_data(stock_list, start_date, end_date):
@@ -126,7 +173,8 @@ pythonclass PanicSentimentStrategy:
         else:
             return 'HOLD'
 聚宽平台完整实现
-pythondef initialize(context):
+```python
+def initialize(context):
     # 策略参数
     g.index = '000300.XSHG'  # 沪深300基准
     g.stocks = get_index_stocks('000300.XSHG')
@@ -192,7 +240,17 @@ def calculate_daily_panic_sentiment(context):
         'limit_ratio': limit_ratio,
         'signal': signal
     }
-结论与建议
-恐慌情绪因子在A股市场具有显著的阿尔法创造能力，主要得益于散户主导的市场结构（80%+散户参与） ScienceDirect和信息不对称环境。 Investopedia +2实证研究显示，恐慌情绪增强策略在风险调整收益、回撤控制和择时准确性方面均有显著改善。 SpringerOpenResearchGate
-实施建议包括：1）采用多时间框架方法结合日度恐慌信号与周/月度情绪趋势；2）利用恐慌情绪进行板块轮动的战术资产配置；3）将恐慌风控作为投资组合保护机制；4）投资技术以实现实时情绪处理和阈值优化。 PyPI
-随着中国市场持续发展和机构资本增加，恐慌情绪因子将继续为精密量化投资策略提供有价值的组成部分， ArXiv特别是在与传统量化方法整合应用时展现出独特优势。 GitHub +2
+```
+
+# 结论与建议
+
+恐慌情绪因子在A股市场具有显著的阿尔法创造能力，主要得益于散户主导的市场结构（80%+散户参与）和信息不对称环境。实证研究显示，恐慌情绪增强策略在风险调整收益、回撤控制和择时准确性方面均有显著改善。
+
+实施建议包括：
+
+1. 采用多时间框架方法结合日度恐慌信号与周/月度情绪趋势；
+2. 利用恐慌情绪进行板块轮动的战术资产配置；
+3. 将恐慌风控作为投资组合保护机制；
+4. 投资技术以实现实时情绪处理和阈值优化。
+
+随着中国市场持续发展和机构资本增加，恐慌情绪因子将继续为精密量化投资策略提供有价值的组成部分，特别是在与传统量化方法整合应用时展现出独特优势。
